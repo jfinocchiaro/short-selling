@@ -3,10 +3,11 @@ import numpy as np
 
 
 class Agent:
-    def __init__(self, id, utility, endowment, prices, subplans):
+    def __init__(self, id, utility, endowment, endowment_plan, prices, subplans):
         self.id = id
         self.u = utility #function
-        self.e = endowment #scalar
+        self.e = endowment #vector dim c x 1
+        self.endowment_plan = endowment_plan #how much the person would have after they sell if they sold right now
         self.p = prices #vector dim c x 1
         self.subplans = subplans #vector dimension (num_agents) x 1
         self.x = np.sum(subplans)
