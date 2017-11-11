@@ -6,18 +6,15 @@ import networkx as nx
 import numpy as np
 from collections import defaultdict
 
-def optimizeutility(agent, G, agentlist):
-    print agent.idnum
-
+def optimizelinearutility(agent, G, agentlist):
+    num_goods = len(agent.e)
     opt_prob = LpProblem("Optimize utility", LpMaximize)
 
-    xs = [LpVariable("x{}".format(i+1), cat="Continuous") for i in range(len(agent.e))]
-
+    xs = [LpVariable("x{}".format(i+1), cat="Continuous") for i in range(num_goods)]
+    objective = np.dot(agent.u, np.array(xs))
     # Objective function
-    opt_prob += agent.u, "Optimization Function- agent utility"
-
-
-
+    opt_prob += objective, "Optimization Function- agent utility"
+s
     # add constraint
     total_spending = 0
 
@@ -28,7 +25,10 @@ def optimizeutility(agent, G, agentlist):
 
     print total_spending
     opt_prob += total_spending <= agent.budget_constraint_ineq
-    opt_prob += sum(xs) == agent.budget_constraint_eq
+    #opt_prob += sum(xs) == agent.budget_constraint_eq
+
+    for i in range(num_goods):
+        opt_prob += xs[i] >= 0
 
     opt_prob.solve()
 
@@ -47,10 +47,11 @@ G = nx.Graph()
 G.add_edge(1,2)
 c = 2
 agentlist = defaultdict(Agent)
-agent1 = Agent(1, 0, np.array((1,2)), np.array((1, 5)), np.array((0, 3)), np.array((0,0)), np.array((0,0)))
+#id num, utility, endowment, prices, subplans, r, k
+agent1 = Agent(1, np.array((2,3)), np.array((300,100)), np.array((1, 5)), np.array([[0,0], [3,0]]), np.array((0,0)), np.array((0,0)))
 agentlist[1] = agent1
 
-agent2 = Agent(1, 0, np.array((1,2)), np.array((1, 5)), np.array((0, 3)), np.array((0,0)), np.array((0,0)))
+agent2 = Agent(2, np.array((5,2)), np.array((100,200)), np.array((2, 5)), np.array([[0, 3], [0,0]]), np.array((0,0)), np.array((0,0)))
 agentlist[2] = agent2
 
-optimizeutility(agent1, G, agentlist)
+optimizelinearutility(agent1, G, agentlist)

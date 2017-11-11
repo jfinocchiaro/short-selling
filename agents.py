@@ -5,9 +5,10 @@ import numpy as np
 class Agent:
     def __init__(self, idnum, utility, endowment,  prices, subplans, r, k):
         self.idnum = idnum
-        self.u = utility #function
+        self.u = utility.T #vector dim c x 1 of coefficients for each commodity c
         self.e = endowment.T #vector dim c x 1
-        self.endowment_plan = endowment.T #how much the person would have after they sell if they sold right now
+        #removed endowment plan since it is calculated e + r
+        #self.endowment_plan = endowment.T #how much the person would have after they sell if they sold right now
         self.p = prices.T #vector dim c x 1
         self.subplans = subplans #vector dimension (num_agents) x c
         self.x = np.sum(subplans)
