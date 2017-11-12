@@ -14,16 +14,16 @@ def optimizelinearutility(agent, G, agentlist):
     objective = np.dot(agent.u, np.array(xs))
     # Objective function
     opt_prob += objective, "Optimization Function- agent utility"
-s
+
     # add constraint
     total_spending = 0
 
     for nei in G.neighbors(agent.idnum):
         neighbor = agentlist[nei]
-        print neighbor.e
+        print (neighbor.e)
         total_spending += np.dot(neighbor.p.T, xs)
 
-    print total_spending
+    print (total_spending )
     opt_prob += total_spending <= agent.budget_constraint_ineq
     #opt_prob += sum(xs) == agent.budget_constraint_eq
 
@@ -33,15 +33,15 @@ s
     opt_prob.solve()
 
     if opt_prob.status == LpStatusInfeasible:
-            print "Constraints are infeasible!"
+            print ("Constraints are infeasible!")
 
     if opt_prob.status == LpStatusUnbounded:
-            print "Solution is unbounded!"
+            print ("Solution is unbounded!")
 
     if opt_prob.status == LpStatusOptimal:
-            print "Optimal solution exists and is equal to: {} and the optimal point is:".format(value(opt_prob.objective))
+            print ("Optimal solution exists and is equal to: {} and the optimal point is:".format(value(opt_prob.objective)) )
             for variable in opt_prob.variables():
-                    print "{} = {}".format(variable.name, variable.varValue)
+                    print ("{} = {}".format(variable.name, variable.varValue))
 
 G = nx.Graph()
 G.add_edge(1,2)
