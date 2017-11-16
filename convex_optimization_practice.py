@@ -58,9 +58,9 @@ def optimizelinearutility(agent, G, agentlist):
                     total_goods_purchased[(count % num_goods)] += variable.varValue
 
     print(total_goods_purchased)
-    agent.r = np.multiply(agent.lambdafunc,total_goods_purchased)
+    agent.r = np.multiply(agent.lambdafunc,total_goods_purchased) + agent.r
 
-
+    return agent
 
 
 
