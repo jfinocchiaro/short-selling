@@ -4,6 +4,7 @@ import agents
 from collections import defaultdict
 import matplotlib.pyplot as plt
 import makegraphs
+import convex_optimization
 
 
 #DONE
@@ -12,10 +13,14 @@ def checkEquilibrium(agents_old, agents_new):
 
     #check every agent's subplan
     for agent in agents_old:
-        if list(agents_old[agent].subplans) == list(agents_new[agent].subplans):
-            pass
-        else:
-            return False
+        for person in range(len(agents_old[agent].subplans)):
+            print agents_old[agent].subplans[person]
+            print agents_new[agent].subplans[person]
+            print agents_old[agent].subplans[person] == agents_old[agent].subplans[person]
+            if (agents_old[agent].subplans[person] == agents_new[agent].subplans[person]).all():
+                pass
+            else:
+                return False
 
     return True
 
@@ -25,29 +30,25 @@ def checkEquilibrium(agents_old, agents_new):
 #Add node subplans to drawing
 def drawNetwork(G, attribute, filename):
     limits = plt.axis('off') #turn off axes
-    nx.draw(G, pos=nx.spring_layout(G))
+    attr = nx.get_node_attributes(G, attribute)
+    labels = {}
+
+    for agent in attr.itervalues():
+        print agent
+        labels[agent.idnum] = [agent.idnum, agent.calcUtility(), agent.subplans]
+    nx.draw(G, pos=nx.spring_layout(G), labels=labels)
     plt.savefig(filename)
 
 
 def changePlans(G):
     #get dict of agents
-    agentlist = G.get_node_attributes(G, 'agentprop')
+    agentlist = nx.get_node_attributes(G, 'agentprop')
 
     #buying sweep
     #do as vector operations?
     #max utility subject to budget constraints
     for node in G.nodes():
-        agent = agentlist[node]
-
-        for neighbor in G.neighbors(node):
-            items_to_sell = agentlist[neighbor].endowment_plan
-            prices = agentlist[neighbor].p
-            for item in range(len(items_to_sell)):
-                #optimize plan
-
-    #re-selling sweep
-    for node in G.nodes():
-        pass
+        agentlist[node] = convex_optimization.optimizelinearutility(agentlist[node], G, agentlist)
 
     return agentlist
     #return dictionary of agents
@@ -73,7 +74,7 @@ if __name__ == "__main__":
 
     check_eq = False
     num_rounds = 0
-    while (!check_eq):
+    while (check_eq):
         agents_old = nx.get_node_attributes(G, 'agentprop')
         agents_new = changePlans(G)
         nx.set_node_attributes(G, 'agentprop', agents_new)

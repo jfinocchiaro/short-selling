@@ -7,8 +7,6 @@ class Agent:
         self.idnum = idnum
         self.u = utility.T #vector dim c x 1 of coefficients for each commodity c
         self.e = endowment.T #vector dim c x 1
-        #removed endowment plan since it is calculated e + r
-        #self.endowment_plan = endowment.T #how much the person would have after they sell if they sold right now
         self.p = prices.T #vector dim c x 1
         self.subplans = subplans #vector dimension (num_agents) x c
         self.x = np.sum(subplans)
@@ -18,6 +16,9 @@ class Agent:
         self.k = np.zeros((c,1))
         self.budget_constraint_ineq = np.matmul(self.p, (self.e + self.r))
         #self.budget_constraint_eq = (r + k).T
+
+    def calcUtility(self):
+        return (np.dot(self.u, self.subplans))
 
     def budgetconstraint(self, G):
         budget_constraint = 0
