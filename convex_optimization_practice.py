@@ -7,39 +7,64 @@ import numpy as np
 from collections import defaultdict
 
 def optimizelinearutility(agent, G, agentlist):
+    
+
     num_goods = len(agent.e)
     opt_prob = LpProblem("Optimize utility", LpMaximize)
     num_neighbors = len(G.neighbors(agent.idnum))
 
+    # xs is the subplan matrix of dimension n_neighbors * n_goods
     xs = [];
     for j in range(num_neighbors):
         xs.append([LpVariable("x{}".format(i+1+j*num_goods), cat="Continuous") for i in range(num_goods)]);
+    
+    # Use the xs matrix to compute the overall subplan for this agent. Sum
+    # over the neighbor dimension for all the goods. 
 
-    print(np.array(xs))
+    subplan = np.sum(xs, axis=0);
+    
+    # We create optimization variables for the goods we want to keep.
+    ks = [LpVariable("k{}".format(i+1), cat="Continuous") for i in range(num_goods)]
 
-    objective = np.sum(np.dot(np.array(xs), agent.u)) #symbolic
+    # The rest is resold. This is a constraint in Elliott's document. 
+    rs = subplan - ks;
 
-    print(objective)
+    print("subplan ", subplan);   
+    print("keep vector", ks);
+    print("reselling vector", rs);
+    
+    # Maximize the u.k for this agent. 
+    objective = np.sum(np.dot(np.array(ks), agent.u)) #symbolic
+
+    print("objective ", objective)
     # Objective function
     opt_prob += objective, "Optimization Function- agent utility"
 
     # add constraint
     neighbor_prices = []
     total_spending = 0
-
+	
     for j, nei in enumerate(G.neighbors(agent.idnum)):
         neighbor = agentlist[nei]
         #print (neighbor.e)
         #neighbor_prices.extend(neighbor.p.T)
-        total_spending += np.dot(neighbor.p.T, xs[j])
+        total_spending += np.dot(neighbor.p, np.array(xs[j]).T);
 
-    print (total_spending )
-
-    opt_prob += total_spending <= agent.budget_constraint_ineq
+    print ("total_spending ", total_spending)
+    
+    # THe constraint for total spending is the endowment plus the resell gain.
+    opt_prob += total_spending <= np.dot(agent.p, (agent.e + rs).T);
     #opt_prob += sum(xs) == agent.budget_constraint_eq
-
+    
+    # Each good bought should be a non-negative quantity.
+    for j in range(num_neighbors):
+        for i in range(num_goods):
+            opt_prob += xs[i][j] >= 0
+    
+    # The constraint on the goods kept is 0 < k_i < subplan_i;
     for i in range(num_goods):
-        opt_prob += xs[i] >= 0
+        opt_prob += ks[i] >= 0;
+        opt_prob += ks[i] <= subplan[i];
 
     opt_prob.solve()
 
@@ -55,10 +80,6 @@ def optimizelinearutility(agent, G, agentlist):
             print ("Optimal solution exists and is equal to: {} and the optimal point is:".format(value(opt_prob.objective)) )
             for count, variable in enumerate(opt_prob.variables()):
                     print ("{} = {}".format(variable.name, variable.varValue))
-                    total_goods_purchased[(count % num_goods)] += variable.varValue
-
-    print(total_goods_purchased)
-    agent.r = np.multiply(agent.lambdafunc,total_goods_purchased) + agent.r
 
     return agent
 
