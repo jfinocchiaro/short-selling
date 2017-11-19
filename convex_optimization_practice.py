@@ -33,6 +33,7 @@ def optimizelinearutility(agent, G, agentlist):
     print("keep vector", ks);
     print("reselling vector", rs);
     
+    print(np.array(ks).shape, agent.u.shape);
     # Maximize the u.k for this agent. 
     objective = np.sum(np.dot(np.array(ks), agent.u)) #symbolic
 
@@ -57,9 +58,12 @@ def optimizelinearutility(agent, G, agentlist):
     #opt_prob += sum(xs) == agent.budget_constraint_eq
     
     # Each good bought should be a non-negative quantity.
-    for j in range(num_neighbors):
-        for i in range(num_goods):
-            opt_prob += xs[i][j] >= 0
+    for n, nei in enumerate(G.neighbors(agent.idnum)):
+        neighbor = agentlist[nei];
+        print("Neighbor %d " % (nei), " has endowment ", neighbor.e);
+        for good in range(num_goods):
+            opt_prob += xs[n][good] >= 0
+            opt_prob += xs[n][good] <= neighbor.e[good]; 
     
     # The constraint on the goods kept is 0 < k_i < subplan_i;
     for i in range(num_goods):
