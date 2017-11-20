@@ -94,7 +94,7 @@ def optimizelinearutility(agent, G, agentlist):
 
 
     #change this!
-    print type(sp)
+    print(type(sp))
     agent.subplans = np.add(sp, agent.subplans)
 
     return agent

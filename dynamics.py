@@ -14,9 +14,9 @@ def checkEquilibrium(agents_old, agents_new):
     #check every agent's subplan
     for agent in agents_old:
         for person in range(len(agents_old[agent].subplans)):
-            print agents_old[agent].subplans[person]
-            print agents_new[agent].subplans[person]
-            print agents_old[agent].subplans[person] == agents_old[agent].subplans[person]
+            print (agents_old[agent].subplans[person])
+            print (agents_new[agent].subplans[person])
+            print (agents_old[agent].subplans[person] == agents_old[agent].subplans[person])
             if (agents_old[agent].subplans[person] == agents_new[agent].subplans[person]).all():
                 pass
             else:
@@ -34,7 +34,7 @@ def drawNetwork(G, attribute, filename):
     labels = {}
 
     for agent in attr.itervalues():
-        print agent
+        print (agent)
         labels[agent.idnum] = [agent.idnum, agent.calcUtility(), agent.subplans]
     nx.draw(G, pos=nx.spring_layout(G), labels=labels)
     plt.savefig(filename)
@@ -81,4 +81,4 @@ if __name__ == "__main__":
         check_eq = checkEquilibrium(agents_old, agents_new)
         num_rounds += 1
 
-    print str(num_rounds - 1) + ' rounds needed to reach equilibrium.'
+    print (str(num_rounds - 1) + ' rounds needed to reach equilibrium.')
