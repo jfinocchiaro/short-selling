@@ -13,7 +13,7 @@ def checkEquilibrium(agents_old, agents_new):
 
     #check every agent's subplan
     for agent in agents_old:
-        for person in range(len(agents_old[agent].subplans)):
+        for person in range(agents_old[agent].subplans.shape[0]):
             print (agents_old[agent].subplans[person])
             print (agents_new[agent].subplans[person])
             print (agents_old[agent].subplans[person] == agents_old[agent].subplans[person])

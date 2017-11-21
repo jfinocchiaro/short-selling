@@ -88,13 +88,13 @@ def optimizelinearutility(agent, G, agentlist):
 
     sp = np.zeros((num_goods, 1))
     valvars = [val.varValue for val in opt_prob.variables()]
+
     for good in range(num_goods):
         for people in range(num_neighbors):
-            sp[good] += float(valvars[good + 1 + (people * num_goods)])
+            sp[good] += float(valvars[good + ((people + 1) * num_goods)])
 
 
     #change this!
-    print(type(sp))
     agent.subplans = np.add(sp, agent.subplans)
 
     return agent

@@ -5,6 +5,7 @@ import makegraphs
 import dynamics
 import networkx as nx
 import numpy as np
+import copy
 from collections import defaultdict
 
 def main():
@@ -33,13 +34,13 @@ def main():
     num_rounds = 0
 
     while (check_eq == False):
-        agents_old = nx.get_node_attributes(G, 'agentprop')
+        print("Num rounds ", num_rounds);
+        agents_old = copy.deepcopy(nx.get_node_attributes(G, 'agentprop'));
         agents_new = dynamics.changePlans(G)
-        nx.set_node_attributes(G, 'agentprop', agents_new)
         check_eq = dynamics.checkEquilibrium(agents_old, agents_new)
+        nx.set_node_attributes(G, 'agentprop', agents_new)
         filename = 'samplefile' + str(num_rounds) + '.png'
-        dynamics.drawNetwork(G, 'agentprop', filename)
-
+        #dynamics.drawNetwork(G, 'agentprop', filename)
         num_rounds += 1
 
     print(num_rounds-1)
