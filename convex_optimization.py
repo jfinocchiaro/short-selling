@@ -28,34 +28,29 @@ def optimizelinearutility(agent, G, agentlist):
     ks = [LpVariable("k{}".format(i+1), cat="Continuous") for i in range(num_goods)]
 
     # The rest is resold. This is a constraint in Elliott's document.
-    rs = subplan - ks;
+    #rs = subplan - ks;
 
-    print("subplan ", subplan);
-    print("keep vector", ks);
-    print("reselling vector", rs);
+    print("subplan " + str(subplan));
+    print("keep vector" + str(ks));
 
-    print(np.array(ks).shape, agent.u.shape);
     # Maximize the u.k for this agent.
     objective = np.sum(np.dot(np.array(ks), agent.u)) #symbolic
 
-    print("objective " + str(objective))
     # Objective function
     opt_prob += objective, "Optimization Function- agent utility"
 
     # add constraint
-    neighbor_prices = []
     total_spending = 0
 
     for j, nei in enumerate(G.neighbors(agent.idnum)):
         neighbor = agentlist[nei]
         #print (neighbor.e)
-        #neighbor_prices.extend(neighbor.p.T)
         total_spending += np.dot(neighbor.p, np.array(xs[j]).T);
 
     print ("total_spending ", total_spending)
 
     # THe constraint for total spending is the endowment plus the resell gain.
-    opt_prob += total_spending <= np.dot(agent.p, (agent.e + rs).T);
+    opt_prob += total_spending <= np.dot(agent.p, (agent.e + agent.resell).T);
     #opt_prob += sum(xs) == agent.budget_constraint_eq
 
     # Each good bought should be a non-negative quantity.
@@ -64,7 +59,7 @@ def optimizelinearutility(agent, G, agentlist):
         print("Neighbor %d " % (nei), " has endowment ", neighbor.e);
         for good in range(num_goods):
             opt_prob += xs[n][good] >= 0
-            opt_prob += xs[n][good] <= neighbor.e[good];
+            opt_prob += xs[n][good] <= neighbor.e[good] - neighbor.sellplan[good] + (neighbor.resell[good]* neighbor.subplans[good]);
 
     # The constraint on the goods kept is 0 < k_i < subplan_i;
     for i in range(num_goods):
@@ -89,13 +84,19 @@ def optimizelinearutility(agent, G, agentlist):
     sp = np.zeros((num_goods, 1))
     valvars = [val.varValue for val in opt_prob.variables()]
 
-    for good in range(num_goods):
-        for people in range(num_neighbors):
+    for people, neighbor in enumerate(G.neighbors(agent.idnum)):
+        for good in range(num_goods):
+            #need a way to reset sellplan for each iteration
+            agentlist[neighbor].sellplan[good] += valvars[good + ((people + 1) * num_goods)]
             sp[good] += float(valvars[good + ((people + 1) * num_goods)])
 
 
+    keep = valvars[:num_goods]
+    print (keep)
+    agent.resell = [1 - x for x in keep]
+    print ('Reselling:\t' + str(agent.resell))
     #change this!
-    agent.subplans = np.add(sp, agent.subplans)
+    agent.subplans = sp #np.add(sp, agent.subplans)
 
     return agent
 
@@ -106,14 +107,14 @@ G.add_edge(1,2)
 G.add_edge(2,3)
 c = 2
 agentlist = defaultdict(Agent)
-#id num, utility, endowment, prices, subplans, r, k
-agent1 = Agent(1, np.array((10,1)), np.array((0,1)), np.array((10, 10)), np.array([[0,0], [3,0]]), np.array([0,1]))
+#id num, utility, endowment, prices, subplans
+agent1 = Agent(1, np.array((10,1)), np.array((0,1)), np.array((10, 10)))
 agentlist[1] = agent1
 
-agent2 = Agent(2, np.array((10,10)), np.array((0,0)), np.array((10,10)), np.array([[0, 3], [0,0]]), np.array([1, 1]))
+agent2 = Agent(2, np.array((10,10)), np.array((0,0)), np.array((10,10)))
 agentlist[2] = agent2
 
-agent3 = Agent(3, np.array((1,10)), np.array((1,0)), np.array((10,10)), np.array([[0,0], [3,0]]), np.array([1, 0]))
+agent3 = Agent(3, np.array((1,10)), np.array((1,0)), np.array((10,10)))
 agentlist[3] = agent3
 
 

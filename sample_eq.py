@@ -9,33 +9,33 @@ import copy
 from collections import defaultdict
 
 def main():
-    G = makegraphs.starGraph(5)
+    G = makegraphs.starGraph(3)
     agentlist = {}
-    #id num, utility, endowment, prices, subplans, r
-    agent1 = Agent(1, np.array((10,1)), np.array((0,1)), np.array((10, 10)), np.array([[0,0], [3,0]]), np.array([0,1]))
-    agentlist[1] = agent1
-
-    agent2 = Agent(2, np.array((10,10)), np.array((0,0)), np.array((10,10)), np.array([[0, 3], [0,0]]), np.array([1, 1]))
+    #id num, utility, endowment, prices
+    agent2 = Agent(2, np.array((10,1)), np.array((0,1)), np.array((10, 1)))
     agentlist[2] = agent2
 
-    agent3 = Agent(3, np.array((1,10)), np.array((1,0)), np.array((10,10)), np.array([[0,0], [3,0]]), np.array([1, 0]))
+    agent1 = Agent(1, np.array((10,10)), np.array((0,0)), np.array((10,10)))
+    agentlist[1] = agent1
+
+    agent3 = Agent(3, np.array((1,10)), np.array((1,0)), np.array((1,10)))
     agentlist[3] = agent3
 
-    agent4 = Agent(4, np.array((10,10)), np.array((0,0)), np.array((10,10)), np.array([[0, 3], [0,0]]), np.array([1, 1]))
-    agentlist[4] = agent4
 
-    agent5 = Agent(5, np.array((1,10)), np.array((1,0)), np.array((10,10)), np.array([[0,0], [3,0]]), np.array([1, 0]))
-    agentlist[5] = agent5
-
+    num_goods = 2
 
     nx.set_node_attributes(G, 'agentprop', agentlist)
 
     check_eq = False
     num_rounds = 0
 
-    while (check_eq == False):
-        print("Num rounds ", num_rounds);
+    while (check_eq == False and num_rounds < 5):
+        print("Num rounds:  %i" % num_rounds);
         agents_old = copy.deepcopy(nx.get_node_attributes(G, 'agentprop'));
+        for agent in G.nodes():
+            agentlist[agent].resell = np.zeros((num_goods,1))
+            agentlist[agent].sellplan = np.zeros((num_goods,1))
+            agentlist[agent].subplans = np.zeros((G.number_of_nodes(), num_goods))
         agents_new = dynamics.changePlans(G)
         check_eq = dynamics.checkEquilibrium(agents_old, agents_new)
         nx.set_node_attributes(G, 'agentprop', agents_new)
@@ -43,11 +43,11 @@ def main():
         #dynamics.drawNetwork(G, 'agentprop', filename)
         num_rounds += 1
 
-    print(num_rounds-1)
+    print('Number of rounds to reach equilibrium:\t%i' % num_rounds)
 
     nx.set_node_attributes(G, 'agentprop', agentlist)
 
-    #dynamics.drawNetwork(G, 'agentprop', 'samplefile.png')
+    dynamics.drawNetwork(G, 'agentprop', 'samplefile.png')
 
 
 

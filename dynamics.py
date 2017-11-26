@@ -1,6 +1,7 @@
 import networkx as nx
 import numpy as np
 import agents
+from agents import Agent
 from collections import defaultdict
 import matplotlib.pyplot as plt
 import makegraphs
@@ -14,9 +15,6 @@ def checkEquilibrium(agents_old, agents_new):
     #check every agent's subplan
     for agent in agents_old:
         for person in range(agents_old[agent].subplans.shape[0]):
-            print (agents_old[agent].subplans[person])
-            print (agents_new[agent].subplans[person])
-            print (agents_old[agent].subplans[person] == agents_old[agent].subplans[person])
             if (agents_old[agent].subplans[person] == agents_new[agent].subplans[person]).all():
                 pass
             else:
@@ -34,8 +32,7 @@ def drawNetwork(G, attribute, filename):
     labels = {}
 
     for agent in attr.itervalues():
-        print (agent)
-        labels[agent.idnum] = [agent.idnum, agent.calcUtility(), agent.subplans]
+        labels[agent.idnum] = [int(agent.calcUtility()[0]), list(agent.subplans.T[0])]
     nx.draw(G, pos=nx.spring_layout(G), labels=labels)
     plt.savefig(filename)
 
@@ -56,8 +53,7 @@ def changePlans(G):
 
 
 if __name__ == "__main__":
-    G = makegraphs.ringGraph(5)
-    drawNetwork(G, 'test.png')
+    G = makegraphs.ringGraph(3)
     #initialize graph here
 
     c = 2 #number of commodities
@@ -82,3 +78,6 @@ if __name__ == "__main__":
         num_rounds += 1
 
     print (str(num_rounds - 1) + ' rounds needed to reach equilibrium.')
+
+
+    drawNetwork(G, 'agentprop', 'test.png')
