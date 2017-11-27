@@ -6,7 +6,7 @@ from collections import defaultdict
 import matplotlib.pyplot as plt
 import makegraphs
 import convex_optimization
-
+from decimal import Decimal
 
 #DONE
 def checkEquilibrium(agents_old, agents_new):
@@ -15,7 +15,10 @@ def checkEquilibrium(agents_old, agents_new):
     #check every agent's subplan
     for agent in agents_old:
         for person in range(agents_old[agent].subplans.shape[0]):
-            if (agents_old[agent].subplans[person] == agents_new[agent].subplans[person]).all():
+            sublabels_old = [float(Decimal('%.2f' % elem)) for elem in list(agents_old[agent].subplans.T[0])]
+            sublabels_new = [float(Decimal('%.2f' % elem)) for elem in list(agents_new[agent].subplans.T[0])]
+            print sublabels_old == sublabels_new
+            if (sublabels_old == sublabels_new):
                 pass
             else:
                 return False
@@ -32,7 +35,8 @@ def drawNetwork(G, attribute, filename):
     labels = {}
 
     for agent in attr.itervalues():
-        labels[agent.idnum] = [int(agent.calcUtility()[0]), list(agent.subplans.T[0])]
+        sublabels = [float(Decimal('%.2f' % elem)) for elem in list(agent.subplans.T[0])]
+        labels[agent.idnum] = [agent.idnum, int(agent.calcUtility()[0]), sublabels]
     nx.draw(G, pos=nx.spring_layout(G), labels=labels)
     plt.savefig(filename)
 
@@ -46,6 +50,7 @@ def changePlans(G):
     #max utility subject to budget constraints
     for node in G.nodes():
         agentlist[node] = convex_optimization.optimizelinearutility(agentlist[node], G, agentlist)
+
 
     return agentlist
     #return dictionary of agents

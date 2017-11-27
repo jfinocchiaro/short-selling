@@ -20,7 +20,14 @@ class Agent:
         #self.budget_constraint_eq = (r + k).T
 
     def calcUtility(self):
-        return (np.dot(self.u, self.subplans))
+        print 'Agent num %i' % self.idnum
+        print 'Agent utility ' + str(self.u)
+        print 'Agent endowment ' + str(self.e)
+        print 'Agent subplans ' + str(self.subplans)
+        print 'Agent sellplan ' + str(self.sellplan)
+        print 'Agent resell ' + str(self.resell)
+
+        return (np.dot(self.u, (self.e + self.subplans)))
 
     def budgetconstraint(self, G):
         budget_constraint = 0

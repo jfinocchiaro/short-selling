@@ -12,13 +12,13 @@ def main():
     G = makegraphs.starGraph(3)
     agentlist = {}
     #id num, utility, endowment, prices
-    agent2 = Agent(2, np.array((10,1)), np.array((0,1)), np.array((10, 10)))
+    agent2 = Agent(2, np.array((10,1)), np.array((0,1)), np.array((1, 1)))
     agentlist[2] = agent2
 
     agent1 = Agent(1, np.array((10,10)), np.array((0,0)), np.array((10,10)))
     agentlist[1] = agent1
 
-    agent3 = Agent(3, np.array((1,10)), np.array((1,0)), np.array((10,10)))
+    agent3 = Agent(3, np.array((1,10)), np.array((1,0)), np.array((1,1)))
     agentlist[3] = agent3
 
 
@@ -29,7 +29,7 @@ def main():
     check_eq = False
     num_rounds = 0
 
-    while (check_eq == False and num_rounds < 5):
+    while (check_eq == False):
         print("Num rounds:  %i" % num_rounds);
         agents_old = copy.deepcopy(nx.get_node_attributes(G, 'agentprop'));
         agents_new = dynamics.changePlans(G)

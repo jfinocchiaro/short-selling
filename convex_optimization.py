@@ -8,12 +8,10 @@ from collections import defaultdict
 
 def optimizelinearutility(agent, G, agentlist):
 
-
+    print ('Agent number %i' % agent.idnum)
     num_goods = len(agent.e)
     opt_prob = LpProblem("Optimize utility", LpMaximize)
-
     num_neighbors = len(G.neighbors(agent.idnum))
-
     # xs is the subplan matrix of dimension n_neighbors * n_goods
     xs = [];
     for j in range(num_neighbors):
@@ -22,16 +20,16 @@ def optimizelinearutility(agent, G, agentlist):
     # Use the xs matrix to compute the overall subplan for this agent. Sum
     # over the neighbor dimension for all the goods.
 
-    subplan = np.sum(xs, axis=0);
+    sub = np.sum(xs, axis=0);
 
     # We create optimization variables for the goods we want to keep.
     ks = [LpVariable("k{}".format(i+1), cat="Continuous") for i in range(num_goods)]
 
     # The rest is resold. This is a constraint in Elliott's document.
-    #rs = subplan - ks;
+    rs = sub - ks;
 
-    print("subplan " + str(subplan));
-    print("keep vector" + str(ks));
+    #print("sub " + str(sub));
+    #print("keep vector" + str(ks));
 
     # Maximize the u.k for this agent.
     objective = np.sum(np.dot(np.array(ks), agent.u)) #symbolic
@@ -46,23 +44,24 @@ def optimizelinearutility(agent, G, agentlist):
         neighbor = agentlist[nei]
         total_spending += np.dot(neighbor.p, np.array(xs[j]).T);
 
-    print ("total_spending ", total_spending) #symbolic
+    print ("total_spending " +  str(total_spending)) #symbolic
 
     # THe constraint for total spending is the endowment plus the resell gain.
-    opt_prob += total_spending <= np.dot(agent.p, (agent.e + agent.resell).T);
+    opt_prob += total_spending <= np.dot(agent.p, (agent.e + rs).T);
 
     # Each good bought should be a non-negative quantity.
     for n, nei in enumerate(G.neighbors(agent.idnum)):
         neighbor = agentlist[nei];
-        print("Neighbor %d " % (nei) + " has endowment " + str(neighbor.e));
+        neighbor.e = neighbor.e.reshape(-1,1)
+        print("Neighbor %d " % (nei) + " has endowment " + str(neighbor.e - neighbor.sellplan + neighbor.resell));
         for good in range(num_goods):
             opt_prob += xs[n][good] >= 0
             opt_prob += xs[n][good] <= neighbor.e[good] - neighbor.sellplan[good] + neighbor.resell[good];
 
-    # The constraint on the goods kept is 0 < k_i < subplan_i;
+    # The constraint on the goods kept is 0 < k_i < sub_i;
     for i in range(num_goods):
         opt_prob += ks[i] >= 0;
-        opt_prob += ks[i] <= subplan[i];
+        opt_prob += ks[i] <= sub[i];
 
     opt_prob.solve()
 
@@ -90,30 +89,11 @@ def optimizelinearutility(agent, G, agentlist):
 
 
     keep = valvars[:num_goods]
-    print (keep)
+    keep = (np.array(keep).flatten().reshape(-1,1))
     agent.subplans = sp #np.add(sp, agent.subplans)
-    agent.resell = agent.subplans - keep
-    print ('Reselling:\t' + str(agent.resell))
+    agent.resell = (agent.subplans - np.array(keep))
+    print ('Reselling:  ' + str(agent.resell))
+
     #change this!
 
     return agent
-
-
-
-G = nx.Graph()
-G.add_edge(1,2)
-G.add_edge(2,3)
-c = 2
-agentlist = defaultdict(Agent)
-#id num, utility, endowment, prices, subplans
-agent1 = Agent(1, np.array((10,1)), np.array((0,1)), np.array((10, 10)))
-agentlist[1] = agent1
-
-agent2 = Agent(2, np.array((10,10)), np.array((0,0)), np.array((10,10)))
-agentlist[2] = agent2
-
-agent3 = Agent(3, np.array((1,10)), np.array((1,0)), np.array((10,10)))
-agentlist[3] = agent3
-
-
-optimizelinearutility(agent2, G, agentlist)
