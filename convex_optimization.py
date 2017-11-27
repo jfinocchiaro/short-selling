@@ -44,22 +44,20 @@ def optimizelinearutility(agent, G, agentlist):
 
     for j, nei in enumerate(G.neighbors(agent.idnum)):
         neighbor = agentlist[nei]
-        #print (neighbor.e)
         total_spending += np.dot(neighbor.p, np.array(xs[j]).T);
 
-    print ("total_spending ", total_spending)
+    print ("total_spending ", total_spending) #symbolic
 
     # THe constraint for total spending is the endowment plus the resell gain.
     opt_prob += total_spending <= np.dot(agent.p, (agent.e + agent.resell).T);
-    #opt_prob += sum(xs) == agent.budget_constraint_eq
 
     # Each good bought should be a non-negative quantity.
     for n, nei in enumerate(G.neighbors(agent.idnum)):
         neighbor = agentlist[nei];
-        print("Neighbor %d " % (nei), " has endowment ", neighbor.e);
+        print("Neighbor %d " % (nei) + " has endowment " + str(neighbor.e));
         for good in range(num_goods):
             opt_prob += xs[n][good] >= 0
-            opt_prob += xs[n][good] <= neighbor.e[good] - neighbor.sellplan[good] + (neighbor.resell[good]* neighbor.subplans[good]);
+            opt_prob += xs[n][good] <= neighbor.e[good] - neighbor.sellplan[good] + neighbor.resell[good];
 
     # The constraint on the goods kept is 0 < k_i < subplan_i;
     for i in range(num_goods):
@@ -93,10 +91,10 @@ def optimizelinearutility(agent, G, agentlist):
 
     keep = valvars[:num_goods]
     print (keep)
-    agent.resell = [1 - x for x in keep]
+    agent.subplans = sp #np.add(sp, agent.subplans)
+    agent.resell = agent.subplans - keep
     print ('Reselling:\t' + str(agent.resell))
     #change this!
-    agent.subplans = sp #np.add(sp, agent.subplans)
 
     return agent
 

@@ -9,8 +9,8 @@ class Agent:
         c = len(self.u)
         self.e = endowment.T #vector dim c x 1
         self.p = prices.T #vector dim c x 1
-        self.subplans = np.zeros((c,1)) #vector dimension (num_agents) x c of what to buy from each neighbor
-        self.x = np.sum(self.subplans)
+        self.subplans = np.zeros((c,1)) #vector dimension c x 1 of what to buy from each neighbor
+        self.x = []
         #self.lambdafunc = lambdafunc #cx1 vector of proportion of a good to resell
         #self.r = np.zeros((c,1))
         #self.k = np.zeros((c,1))
