@@ -12,18 +12,24 @@ import linear_iterative
 #DONE
 def checkEquilibrium(agents_old, agents_new):
     #if G_old == G_new: return True
+    for agent in agents_old:
+        if (agents_old[agent].e == agents_new[agent].e).all():
+            pass
+        else:
+            return False
+    return True
 
     #check every agent's subplan
-    for agent in agents_old:
-        for person in range(agents_old[agent].subplans.shape[0]):
-            sublabels_old = [float(Decimal('%.2f' % elem)) for elem in list(agents_old[agent].subplans.T[0])]
-            sublabels_new = [float(Decimal('%.2f' % elem)) for elem in list(agents_new[agent].subplans.T[0])]
+    '''for agent in agents_old:
+        for person in range(agents_old[agent].e.shape[0]):
+            sublabels_old = [float(Decimal('%.2f' % elem)) for elem in list(agents_old[agent].e.T[0])]
+            sublabels_new = [float(Decimal('%.2f' % elem)) for elem in list(agents_new[agent].e.T[0])]
             print sublabels_old == sublabels_new
             if (sublabels_old == sublabels_new):
                 pass
             else:
                 return False
-
+    '''
     return True
 
 #TODO: Check approximate equilibrium if we never hit actual
@@ -37,7 +43,8 @@ def drawNetwork(G, attribute, filename):
 
     for agent in attr.itervalues():
         sublabels = [float(Decimal('%.2f' % elem)) for elem in list(agent.e)]
-        labels[agent.idnum] = [agent.idnum, agent.calcUtility(), sublabels]
+        util = float(Decimal('%.2f' % agent.calcUtility()))
+        labels[agent.idnum] = [agent.idnum, util, sublabels]
     nx.draw(G, pos=nx.spring_layout(G), labels=labels)
     plt.savefig(filename)
 

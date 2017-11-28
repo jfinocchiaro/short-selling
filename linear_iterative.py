@@ -15,11 +15,17 @@ def calcTrade(agent, neighbor):
 
     for item_num1, copies1 in enumerate(agent.e):
         for item_num2, copies2 in enumerate(neighbor.e):
+            #neighbor gives agent item 1, agent gives neighbor item 2
             if neighbor.u[item_num1] < agent.u[item_num1] and neighbor.u[item_num2] >= agent.u[item_num2]:
                 print 'engaged in trade'
+                print agent.e
+                print neighbor.e
+                num_traded = min(neighbor.e[item_num1], agent.e[item_num2])
+                bought_items[item_num1] += num_traded
+                sold_items[item_num2] += num_traded
 
-                bought_items[item_num1] += neighbor.e[item_num1]
-                sold_items[item_num2] += agent.e[item_num2]
+                #bought_items[item_num1] += neighbor.e[item_num1]
+                #sold_items[item_num2] += agent.e[item_num2]
 
 
     return bought_items.T, sold_items.T
