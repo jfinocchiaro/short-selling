@@ -90,7 +90,7 @@ def optimizelinearutility(agent, G, agentlist):
 
     keep = valvars[:num_goods]
     keep = (np.array(keep).flatten().reshape(-1,1))
-    agent.subplans = sp #np.add(sp, agent.subplans)
+    agent.subplans = np.add(sp, agent.subplans)
     agent.resell = (agent.subplans - np.array(keep))
     print ('Reselling:  ' + str(agent.resell))
 

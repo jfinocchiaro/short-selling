@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import makegraphs
 import convex_optimization
 from decimal import Decimal
+import linear_iterative
 
 #DONE
 def checkEquilibrium(agents_old, agents_new):
@@ -35,8 +36,8 @@ def drawNetwork(G, attribute, filename):
     labels = {}
 
     for agent in attr.itervalues():
-        sublabels = [float(Decimal('%.2f' % elem)) for elem in list(agent.subplans.T[0])]
-        labels[agent.idnum] = [agent.idnum, int(agent.calcUtility()[0]), sublabels]
+        sublabels = [float(Decimal('%.2f' % elem)) for elem in list(agent.e)]
+        labels[agent.idnum] = [agent.idnum, agent.calcUtility(), sublabels]
     nx.draw(G, pos=nx.spring_layout(G), labels=labels)
     plt.savefig(filename)
 
@@ -49,7 +50,7 @@ def changePlans(G):
     #do as vector operations?
     #max utility subject to budget constraints
     for node in G.nodes():
-        agentlist[node] = convex_optimization.optimizelinearutility(agentlist[node], G, agentlist)
+        agentlist[node] = linear_iterative.optimizelinearutility(agentlist[node], G, agentlist)
 
 
     return agentlist
