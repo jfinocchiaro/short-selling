@@ -1,5 +1,6 @@
 import networkx as nx
 import numpy as np
+import copy
 
 
 class Agent:
@@ -8,6 +9,7 @@ class Agent:
         self.u = utility.T #vector dim c x 1 of coefficients for each commodity c
         c = len(self.u)
         self.e = endowment.T #vector dim c x 1
+        self.e_init = copy.deepcopy(endowment.T)
         self.p = prices.T #vector dim c x 1
         self.subplans = np.zeros((c,1)) #vector dimension c x 1 of what to buy from each neighbor
         self.x = []

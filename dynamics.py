@@ -42,10 +42,14 @@ def drawNetwork(G, attribute, filename):
     labels = {}
 
     for agent in attr.itervalues():
-        sublabels = [float(Decimal('%.2f' % elem)) for elem in list(agent.e)]
+        e_final = [float(Decimal('%.2f' % elem)) for elem in list(agent.e)]
+        e_init = [float(Decimal('%.2f' % elem)) for elem in list(agent.e_init)]
         util = float(Decimal('%.2f' % agent.calcUtility()))
-        labels[agent.idnum] = [agent.idnum, util, sublabels]
+        labels[agent.idnum] = [agent.idnum, util, e_init, e_final]
+    
+    plt.figure(figsize=(20,10))
     nx.draw(G, pos=nx.spring_layout(G), labels=labels)
+    plt.legend()
     plt.savefig(filename)
 
 

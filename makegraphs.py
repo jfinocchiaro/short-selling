@@ -1,12 +1,12 @@
 import numpy as np
 import networkx as nx
 
-def starGraph(n):
+def starGraph(n, center):
     #n is the number of edges, 1 is the center, has n-1 nodes on the outside
     G = nx.Graph()
-    for i in range(2,n+1):
-        G.add_edge(1, i) #add edge from 1 to spoke
-        G.add_edge(i,1) #make it undirected
+    for i in range(1,n):
+        G.add_edge(center, i) #add edge from 1 to spoke
+        G.add_edge(i,center) #make it undirected
     return G
 
 def ringGraph(n):
