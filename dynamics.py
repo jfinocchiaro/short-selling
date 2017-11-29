@@ -5,7 +5,7 @@ from collections import defaultdict
 import matplotlib.pyplot as plt
 import makegraphs
 import convex_optimization
-
+from decimal import *
 
 #DONE
 def checkEquilibrium(agents_old, agents_new):
@@ -27,16 +27,20 @@ def checkEquilibrium(agents_old, agents_new):
 #TODO: Check approximate equilibrium if we never hit actual
 
 
-#Add node subplans to drawing
 def drawNetwork(G, attribute, filename):
     limits = plt.axis('off') #turn off axes
     attr = nx.get_node_attributes(G, attribute)
     labels = {}
 
     for agent in attr.itervalues():
-        print (agent)
-        labels[agent.idnum] = [agent.idnum, agent.calcUtility(), agent.subplans]
+        e_final = [float(Decimal('%.2f' % elem)) for elem in list(agent.endowmentplan)]
+        e_init = [float(Decimal('%.2f' % elem)) for elem in list(agent.e)]
+        util = float(Decimal('%.2f' % agent.calcUtility()))
+        labels[agent.idnum] = [agent.idnum, util, e_init, e_final, agent.money]
+
+    plt.figure(figsize=(20,10))
     nx.draw(G, pos=nx.spring_layout(G), labels=labels)
+    plt.legend()
     plt.savefig(filename)
 
 

@@ -100,21 +100,21 @@ def optimizelinearutility(agent, G, agentlist):
     return agent
 
 
+if __name__ == '__main__':
+    G = nx.Graph()
+    G.add_edge(1,2)
+    G.add_edge(2,3)
+    c = 2
+    agentlist = defaultdict(Agent)
+    #id num, utility, endowment, prices, subplans, r, k
+    agent1 = Agent(1, np.array((10,1)), np.array((0,1)), np.array((10, 10)), np.array([[0,0], [3,0]]), np.array([0,1]))
+    agentlist[1] = agent1
 
-G = nx.Graph()
-G.add_edge(1,2)
-G.add_edge(2,3)
-c = 2
-agentlist = defaultdict(Agent)
-#id num, utility, endowment, prices, subplans, r, k
-agent1 = Agent(1, np.array((10,1)), np.array((0,1)), np.array((10, 10)), np.array([[0,0], [3,0]]), np.array([0,1]))
-agentlist[1] = agent1
+    agent2 = Agent(2, np.array((10,10)), np.array((0,0)), np.array((10,10)), np.array([[0, 3], [0,0]]), np.array([1, 1]))
+    agentlist[2] = agent2
 
-agent2 = Agent(2, np.array((10,10)), np.array((0,0)), np.array((10,10)), np.array([[0, 3], [0,0]]), np.array([1, 1]))
-agentlist[2] = agent2
-
-agent3 = Agent(3, np.array((1,10)), np.array((1,0)), np.array((10,10)), np.array([[0,0], [3,0]]), np.array([1, 0]))
-agentlist[3] = agent3
+    agent3 = Agent(3, np.array((1,10)), np.array((1,0)), np.array((10,10)), np.array([[0,0], [3,0]]), np.array([1, 0]))
+    agentlist[3] = agent3
 
 
-optimizelinearutility(agent2, G, agentlist)
+    optimizelinearutility(agent2, G, agentlist)
