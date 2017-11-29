@@ -9,17 +9,17 @@ import copy
 from collections import defaultdict
 
 def main():
-    G = makegraphs.starGraph(3)
+    G = makegraphs.starGraph(3,0)
     agentlist = {}
     #id num, utility, endowment, prices
-    agent2 = Agent(2, np.array((10.0,1.0)), np.array((0.01,0.98)), np.array((1.0, 1.0)))
-    agentlist[2] = agent2
-
-    agent1 = Agent(1, np.array((10.0,10.0)), np.array((0.01,0.01)), np.array((10.0,10.0)))
+    agent1 = Agent(1, np.array((10.0,1.0)), np.array((0.01,0.98)), np.array((1.0, 1.0)))
     agentlist[1] = agent1
 
-    agent3 = Agent(3, np.array((1.0,10.0)), np.array((0.98,0.01)), np.array((1.0,1.0)))
-    agentlist[3] = agent3
+    agent0 = Agent(0, np.array((10.0,10.0)), np.array((0.01,0.01)), np.array((10.0,10.0)))
+    agentlist[0] = agent0
+
+    agent2 = Agent(2, np.array((1.0,10.0)), np.array((0.98,0.01)), np.array((1.0,1.0)))
+    agentlist[2] = agent2
 
 
     num_goods = 2
