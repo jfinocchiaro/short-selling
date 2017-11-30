@@ -27,6 +27,8 @@ def lattice(n):
     #n-by-n lattice grid
     return nx.grid_graph(dim=[n,n])
 
+def ERGraph(n,p):
+    return nx.erdos_renyi_graph(n,p);
 
 agent_type = {0: [[10.0, 1.0],[1.0, 0.0]], 1: [[1.0, 10.0],[0.0, 1.0]], 2: [[10.0, 10.0], [0.01, 0.01]], 3: [[10.0, 1.0], [0.0, 1.0]], 4: [[1.0, 10.0],[0.0, 1.0]]}
 
@@ -46,5 +48,6 @@ def assignAgents(G):
                                np.array([0,0])));
     
     return agentlist;
+
 
        
