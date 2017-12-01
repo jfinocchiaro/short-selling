@@ -9,9 +9,10 @@ import copy
 from collections import defaultdict
 
 def main():
-    G = makegraphs.starGraph(1000,0)
+    #G = makegraphs.starGraph(1000,0)
     #G = makegraphs.clique(5);
     #G = makegraphs.ringGraph(1000)
+    G = makegraphs.ERGraph(200,0.5)
     agentlist = makegraphs.assignAgents(G);
     #id num, utility, endowment, prices
 
