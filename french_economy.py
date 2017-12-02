@@ -6,6 +6,104 @@ import networkx as nx
 import numpy as np
 from collections import defaultdict
 import dynamics
+import copy
+
+LOAN_AMT = 1.0
+
+def linearBuyGoods(ag, G, agentlist):
+        agent = agentlist[ag]
+        num_goods = len(agent.e)
+        opt_prob = LpProblem("Optimize utility", LpMaximize)
+
+        num_neighbors = len(G.neighbors(agent.idnum))
+
+        # xs is the subplan matrix of dimension n_neighbors * n_goods
+        xs = [];
+        for j in range(num_neighbors):
+            xs.append([LpVariable("x{}".format(i+1+j*num_goods), cat="Continuous") for i in range(num_goods)]);
+        #cashmoney = (LpVariable("money", cat="Continuous"))
+
+        # Use the xs matrix to compute the overall subplan for this agent. Sum
+        # over the neighbor dimension for all the goods.
+
+        subplan = np.sum(xs, axis=0);
+        print 'subplan:  ' + str(subplan)
+
+        # Maximize the u.k for this agent.
+        objective = np.sum(np.dot(np.array(subplan), agent.u)) + agent.money #symbolic
+
+        print("objective " + str(objective))
+        # Objective function
+        opt_prob += objective, "Optimization Function- agent utility"
+
+
+
+        # add constraint
+        #neighbor_prices = []
+        total_spending = 0
+
+        for j, nei in enumerate(G.neighbors(agent.idnum)):
+            neighbor = agentlist[nei]
+            #print (neighbor.e)
+            #neighbor_prices.extend(neighbor.p.T)
+            total_spending += np.dot(neighbor.p, np.array(xs[j]).T);
+
+        #print ("total_spending ", total_spending)
+
+
+        # THe constraint for total spending is the endowment plus the resell gain.
+        opt_prob += total_spending <= min(np.dot(agent.p, (agent.e).T), agent.money);
+        #opt_prob += sum(xs) == agent.budget_constraint_eq
+
+
+        # Each good bought should be a non-negative quantity.
+        for n, nei in enumerate(G.neighbors(agent.idnum)):
+            neighbor = agentlist[nei];
+            print("Neighbor %d " % (nei) + " has endowment "+ str(neighbor.e));
+            for good in range(num_goods):
+                opt_prob += xs[n][good] >= 0
+                opt_prob += xs[n][good] <= neighbor.e[good];
+
+
+        opt_prob.solve()
+
+        if opt_prob.status == LpStatusInfeasible:
+                print ("Constraints are infeasible!")
+
+        if opt_prob.status == LpStatusUnbounded:
+                print ("Solution is unbounded!")
+
+
+        total_goods_purchased = np.zeros((num_goods, 1))
+        if opt_prob.status == LpStatusOptimal:
+                print ("Optimal solution exists and is equal to: {} and the optimal point is:".format(value(opt_prob.objective)) )
+                for count, variable in enumerate(opt_prob.variables()):
+                        print ("{} = {}".format(variable.name, variable.varValue))
+
+        valvars = [val.varValue for val in opt_prob.variables()]
+
+
+
+        print "Agent endowment before: "+ str(agent.e)
+
+        for people, nei in enumerate(G.neighbors(ag)):
+            neighbor = agentlist[nei]
+            print "Neighbor " + str(nei) + " endowment before: " + str(neighbor.e)
+            for good in range(num_goods):
+                amt_bought = float(valvars[good + ((people) * num_goods)])
+                amt_spent = float(amt_bought * neighbor.p[good])
+                agent.e[good] += amt_bought
+                neighbor.e[good] -= amt_bought
+                agent.money -= amt_spent
+                neighbor.money += amt_spent
+            agentlist[nei] = neighbor
+            print "Neighbor " + str(nei) + " endowment after: " + str(neighbor.e)
+
+        agentlist[ag] = agent
+        print "Agent endowment after: "  + str(agent.e)
+
+        return agentlist
+
 
 def buyGoods(ag, G, agentlist):
     #agent is idnumber of agent
@@ -22,8 +120,7 @@ def buyGoods(ag, G, agentlist):
         #COMMENCE THE TRADE
         for item in most_desired:
             while neighbor.endowmentplan[item] > 0 and spending_money > 0.01 * neighbor.p[item]:
-                #if neighbor.endowmentplan[item] * neighbor.p[item] <= spending_money:
-                #print('Spending money: %d' % spending_money)
+
                 neighbor.endowmentplan[item] -= 0.01
                 neighbor.money += 0.01 * neighbor.p[item]
 
@@ -32,30 +129,49 @@ def buyGoods(ag, G, agentlist):
                 agent.money -= 0.01 * neighbor.p[item]
 
     print 'Agent endowment: \t' + str(agent.e) + '\tendowment plan:\t' + str(agent.endowmentplan)
-
-        #AKA I'm super lost
-
     return agent
 
 def changePlans(G,agentlist):
     for agent in G.nodes():
-        agentlist[agent] = buyGoods(agent, G, agentlist)
+        agentlist = linearBuyGoods(agent, G, agentlist)
 
     for agent in G.nodes():
         #check_clear is set to the amount of items it plans to have after selling
-        agentlist[agent].check_clear = agentlist[agent].endowmentplan - agentlist[agent].e
-
-        print ('Check clear' + str(agentlist[agent].check_clear))
+        #agentlist[agent].check_clear = agentlist[agent].endowmentplan - agentlist[agent].e
+        pass
     return agentlist
 
 def checkClear(G, agentlist):
     for agent in G.nodes():
-        if (agentlist[agent].check_clear != np.zeros((c,1))).all():
+        if (agentlist[agent].money < LOAN_AMT):
             return False
 
     return True
 
 
+def adjustPrices(agentlist):
+
+    for agent in agentlist.itervalues():
+        money = agent.money
+        print 'agent %i' % agent.idnum + ' money:  ' + str(money)
+        print 'agent %i' % agent.idnum + ' prices:  ' + str(agent.p)
+        num_goods = len(agent.p)
+        if money < LOAN_AMT:
+            for good in range(num_goods):
+                agent.p[good] = max(agent.p[good] + (float(money) / num_goods), 0)
+        elif money > LOAN_AMT:
+            for good in range(num_goods):
+                agent.p[good] = max(agent.p[good] + (float(money) / num_goods), 0)
+
+        agentlist[agent.idnum] = agent
+
+        print 'agent %i' % agent.idnum + ' new prices:  ' + str(agent.p)
+
+
+
+    return agentlist
+
+'''
 def adjustPrices(agentlist, check_clear):
     for agent in agentlist.itervalues():
         for i in range(agent.check_clear.shape[0]):
@@ -67,18 +183,38 @@ def adjustPrices(agentlist, check_clear):
                 agent.p[i] += (agent.check_clear[i])
         agentlist[agent.idnum] = agent
     return agentlist
+'''
+
+def checkTradeHappen(agents_old, agents_new):
+    print (agents_old[1].e == agents_new[1].e)
+
+    for ag in agents_old.iterkeys():
+        if (agents_old[ag].e == agents_new[ag].e).all():
+            pass
+        else:
+            print 'entered trade happened zone'
+            print agents_old[ag].e
+            print agents_new[ag].e
+            return True
+    return False
 
 def startEconomy(G,agentlist):
     check_clear = False
+    trade = True
     num_rounds = 0
-    while (check_clear == False):
-        #agents_old = copy.deepcopy(nx.get_node_attributes(G, 'agentprop'));
+    while (check_clear == False) and (trade == True):
+    #while (check_clear == False):
+        agents_old = copy.deepcopy(nx.get_node_attributes(G, 'agentprop'));
         #agentlist = nx.get_node_attributes(G, 'agentprop')
-        agentlist = adjustPrices(agentlist, check_clear)
         agents_new = changePlans(G, agentlist)
+        agentlist = adjustPrices(agentlist)
+        trade = checkTradeHappen(agents_old, agents_new)
         check_clear = checkClear(G, agents_new)
+
         nx.set_node_attributes(G, 'agentprop', agents_new)
         num_rounds += 1
+
+
 
     print('Rounds played:  '+ str(num_rounds))
 
@@ -88,20 +224,22 @@ def startEconomy(G,agentlist):
 if __name__ == '__main__':
     G = nx.Graph()
     G.add_edge(1,2)
-    G.add_edge(2,3)
+    G.add_edge(2,1)
+    G.add_edge(3,1)
+    G.add_edge(1,3)
     c = 2
     agentlist = defaultdict(Agent)
     #id num, utility, endowment, prices, subplans,
-    agent1 = Agent(1, np.array((10,1)), np.array((0.01,0.98)), np.array((10, 10)))
-    agentlist[1] = agent1
+    agent1 = Agent(2, np.array((10,1)), np.array((0.01,0.98)), np.array((0.2, 0.2)), loan=LOAN_AMT)
+    agentlist[2] = agent1
 
-    agent2 = Agent(2, np.array((10,10)), np.array((0.01,0.01)), np.array((10,10)))
-    agentlist[2] = agent2
+    agent2 = Agent(1, np.array((10,10)), np.array((0.01,0.01)), np.array((0.4,0.4)), loan=LOAN_AMT)
+    agentlist[1] = agent2
 
-    agent3 = Agent(3, np.array((1,10)), np.array((0.98,0.01)), np.array((10,10)))
+    agent3 = Agent(3, np.array((1,10)), np.array((0.98,0.01)), np.array((0.2,0.4)), loan=LOAN_AMT)
     agentlist[3] = agent3
 
 
     nx.set_node_attributes(G, 'agentprop', agentlist)
     G = startEconomy(G, agentlist)
-    dynamics.drawNetwork(G, 'agentprop', 'samplefrench.png')
+    dynamics.drawFNetwork(G, 'agentprop', 'samplefrench.png')

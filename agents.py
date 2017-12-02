@@ -3,7 +3,7 @@ import numpy as np
 
 
 class Agent:
-    def __init__(self, idnum, utility, endowment,  prices):
+    def __init__(self, idnum, utility, endowment,  prices, loan=0.0):
         self.idnum = idnum
         self.u = utility.T #vector dim c x 1 of coefficients for each commodity c
         self.e = endowment.T #vector dim c x 1
@@ -15,12 +15,14 @@ class Agent:
         self.r = np.zeros((c,1))
         self.k = np.zeros((c,1))
         self.budget_constraint_ineq = np.matmul(self.p, (self.e + self.r))
-        self.check_clear = np.zeros((c,1))
-        self.money = 0
+        #self.check_clear = np.zeros((c,1))
+        self.money = loan
         #self.budget_constraint_eq = (r + k).T
 
     def calcUtility(self):
-        return (np.dot(self.u, self.subplans))
+        itemutil = (np.dot(self.u, self.e))
+        moneyutil = self.money
+        return (itemutil + moneyutil)
 
     def budgetconstraint(self, G):
         budget_constraint = 0
