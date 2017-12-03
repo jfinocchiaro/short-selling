@@ -6,6 +6,7 @@ import networkx as nx
 import numpy as np
 from collections import defaultdict
 import dynamics
+import makegraphs
 import copy
 
 LOAN_AMT = 1.0
@@ -154,6 +155,7 @@ def adjustPrices(agentlist, num_rounds):
 
     for agent in agentlist.itervalues():
         money = agent.money
+
         print 'agent %i' % agent.idnum + ' money:  ' + str(money)
         print 'agent %i' % agent.idnum + ' prices:  ' + str(agent.p)
         num_goods = len(agent.p)
@@ -163,6 +165,7 @@ def adjustPrices(agentlist, num_rounds):
         elif money > LOAN_AMT:
             for good in range(num_goods):
                 agent.p[good] = np.round(max(agent.p[good] - LR  , 0),2)
+
 
         agentlist[agent.idnum] = agent
 
@@ -242,11 +245,7 @@ def startEconomy(G,agentlist):
 
 
 if __name__ == '__main__':
-    G = nx.Graph()
-    G.add_edge(1,2)
-    G.add_edge(2,1)
-    G.add_edge(3,1)
-    G.add_edge(1,3)
+    G = makegraphs.starGraph(5)
     c = 2
     agentlist = defaultdict(Agent)
     #id num, utility, endowment, prices, subplans,
@@ -258,6 +257,13 @@ if __name__ == '__main__':
 
     agent3 = Agent(3, np.array((1,10)), np.array((0.98,0.01)), np.array((1,10)), loan=LOAN_AMT)
     agentlist[3] = agent3
+
+
+
+    agentlist[4] =  Agent(4, np.array((10,10)), np.array((0.01,0.01)), np.array((10,10)), loan=LOAN_AMT)
+
+
+    agentlist[5] =  Agent(5, np.array((1,10)), np.array((0.98,0.01)), np.array((1,10)), loan=LOAN_AMT)
 
 
     nx.set_node_attributes(G, 'agentprop', agentlist)
