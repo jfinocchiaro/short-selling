@@ -85,11 +85,11 @@ def linearBuyGoods(ag, G, agentlist):
 
 
 
-        print "Agent endowment before: "+ str(agent.e)
+        print "Agent" + str(agent.idnum) + " endowment before: "+ str(agent.e)
 
         for people, nei in enumerate(G.neighbors(ag)):
             neighbor = agentlist[nei]
-            print "Neighbor " + str(nei) + " endowment before: " + str(neighbor.e)
+            #print "Neighbor " + str(nei) + " endowment before: " + str(neighbor.e)
             for good in range(num_goods):
                 amt_bought = float(valvars[good + ((people) * num_goods)])
                 amt_spent = float(amt_bought * neighbor.p[good])
@@ -98,10 +98,10 @@ def linearBuyGoods(ag, G, agentlist):
                 agent.money -= amt_spent
                 neighbor.money += amt_spent
             agentlist[nei] = neighbor
-            print "Neighbor " + str(nei) + " endowment after: " + str(neighbor.e)
+            #print "Neighbor " + str(nei) + " endowment after: " + str(neighbor.e)
 
         agentlist[ag] = agent
-        print "Agent endowment after: "  + str(agent.e)
+        print "Agent " + str(agent.idnum) + " endowment after: "  + str(agent.e)
 
         return agentlist
 
@@ -142,13 +142,13 @@ def changePlans(G,agentlist):
         pass
     return agentlist
 
-def checkClear(G, agentlist):
+'''def checkClear(G, agentlist):
     for agent in G.nodes():
         if (agentlist[agent].money < LOAN_AMT):
             return False
 
     return True
-
+'''
 
 def adjustPrices(agentlist, num_rounds):
 
@@ -188,6 +188,8 @@ def adjustPrices(agentlist, check_clear):
 
 def checkTradeHappen(agents_old, agents_new):
     print (agents_old[1].e == agents_new[1].e)
+    print agents_old[1].e
+    print agents_new[1].e
 
     for ag in agents_old.iterkeys():
         if (agents_old[ag].e == agents_new[ag].e).all():
@@ -196,13 +198,18 @@ def checkTradeHappen(agents_old, agents_new):
             return True
     return False
 
-def budgetCheck(G, agentlist):
+def budgetCheck(G, agentlist, round_num):
     cap = 0
     for agent in agentlist.itervalues():
         cap += agent.money
 
     for agent in agentlist.itervalues():
-        if any(agent.p > cap):
+        neighbor_moneys = [agentlist[x].money for x in G.neighbors(agent.idnum)]
+        rni = neighbor_moneys.index(max(neighbor_moneys))
+        richest_nei = G.neighbors(agent.idnum)[rni]
+
+        rich_neighbor = agentlist[richest_nei]
+        if all(agent.p > cap) and all(rich_neighbor.e == 0) and round_num > 0:
             return True
 
     return False
@@ -212,19 +219,21 @@ def startEconomy(G,agentlist):
     trade = True
     budget_cap = False
     num_rounds = 0
-    while ((check_clear == False) or (trade == True)) and (budget_cap == False):
+    while (budget_cap == False):
     #while (check_clear == False):
+        print 'Round num %i' % num_rounds
         agents_old = copy.deepcopy(nx.get_node_attributes(G, 'agentprop'));
         #agentlist = nx.get_node_attributes(G, 'agentprop')
-        agents_new = changePlans(G, agentlist)
-        agentlist = adjustPrices(agentlist, num_rounds)
+        agents_new = changePlans(G, agents_old)
+        agents_new = adjustPrices(agents_new, num_rounds)
         trade = checkTradeHappen(agents_old, agents_new)
-        check_clear = checkClear(G, agents_new)
-        budget_cap = budgetCheck(G, agents_new)
+        #check_clear = checkClear(G, agents_new)
+        budget_cap = budgetCheck(G, agents_new, num_rounds)
 
         nx.set_node_attributes(G, 'agentprop', agents_new)
         num_rounds += 1
-
+        print 'Trade: ' + str(trade)
+        print 'BC:  ' + str(budget_cap)
 
 
     print('Rounds played:  '+ str(num_rounds))
@@ -241,13 +250,13 @@ if __name__ == '__main__':
     c = 2
     agentlist = defaultdict(Agent)
     #id num, utility, endowment, prices, subplans,
-    agent1 = Agent(2, np.array((10,1)), np.array((0.01,0.98)), np.array((0.2, 0.2)), loan=LOAN_AMT)
+    agent1 = Agent(2, np.array((10,1)), np.array((0.01,0.98)), np.array((10, 1)), loan=LOAN_AMT)
     agentlist[2] = agent1
 
-    agent2 = Agent(1, np.array((10,10)), np.array((0.01,0.01)), np.array((0.4,0.4)), loan=LOAN_AMT)
+    agent2 = Agent(1, np.array((10,10)), np.array((0.01,0.01)), np.array((10,10)), loan=LOAN_AMT)
     agentlist[1] = agent2
 
-    agent3 = Agent(3, np.array((1,10)), np.array((0.98,0.01)), np.array((0.2,0.4)), loan=LOAN_AMT)
+    agent3 = Agent(3, np.array((1,10)), np.array((0.98,0.01)), np.array((1,10)), loan=LOAN_AMT)
     agentlist[3] = agent3
 
 
