@@ -9,6 +9,7 @@ import dynamics
 import copy
 
 LOAN_AMT = 1.0
+LR = 0.02
 
 def linearBuyGoods(ag, G, agentlist):
         agent = agentlist[ag]
@@ -149,7 +150,7 @@ def checkClear(G, agentlist):
     return True
 
 
-def adjustPrices(agentlist):
+def adjustPrices(agentlist, num_rounds):
 
     for agent in agentlist.itervalues():
         money = agent.money
@@ -158,10 +159,10 @@ def adjustPrices(agentlist):
         num_goods = len(agent.p)
         if money < LOAN_AMT:
             for good in range(num_goods):
-                agent.p[good] = max(agent.p[good] + (float(money) / num_goods), 0)
+                agent.p[good] = np.round(max(agent.p[good] + LR  , 0), 2)
         elif money > LOAN_AMT:
             for good in range(num_goods):
-                agent.p[good] = max(agent.p[good] + (float(money) / num_goods), 0)
+                agent.p[good] = np.round(max(agent.p[good] - LR  , 0),2)
 
         agentlist[agent.idnum] = agent
 
@@ -192,24 +193,34 @@ def checkTradeHappen(agents_old, agents_new):
         if (agents_old[ag].e == agents_new[ag].e).all():
             pass
         else:
-            print 'entered trade happened zone'
-            print agents_old[ag].e
-            print agents_new[ag].e
             return True
+    return False
+
+def budgetCheck(G, agentlist):
+    cap = 0
+    for agent in agentlist.itervalues():
+        cap += agent.money
+
+    for agent in agentlist.itervalues():
+        if any(agent.p > cap):
+            return True
+
     return False
 
 def startEconomy(G,agentlist):
     check_clear = False
     trade = True
+    budget_cap = False
     num_rounds = 0
-    while (check_clear == False) and (trade == True):
+    while ((check_clear == False) or (trade == True)) and (budget_cap == False):
     #while (check_clear == False):
         agents_old = copy.deepcopy(nx.get_node_attributes(G, 'agentprop'));
         #agentlist = nx.get_node_attributes(G, 'agentprop')
         agents_new = changePlans(G, agentlist)
-        agentlist = adjustPrices(agentlist)
+        agentlist = adjustPrices(agentlist, num_rounds)
         trade = checkTradeHappen(agents_old, agents_new)
         check_clear = checkClear(G, agents_new)
+        budget_cap = budgetCheck(G, agents_new)
 
         nx.set_node_attributes(G, 'agentprop', agents_new)
         num_rounds += 1
