@@ -36,17 +36,43 @@ def checkEquilibrium(agents_old, agents_new):
 
 
 #Add node subplans to drawing
-def drawNetwork(G, attribute, filename):
+def drawNetwork(G, pos, attribute, filename):
+    limits = plt.axis('off') #turn off axes
+    attr = nx.get_node_attributes(G, attribute)
+    
+    pos_higher = {}
+    y_off = .05  # offset on the y axis
+    for k, v in pos.items():
+        pos_higher[k] = (v[0], v[1]+y_off)
+
+    labels = {}
+
+    for agent in attr.itervalues():
+        sublabels = [float(Decimal('%.2f' % elem)) for elem in list(agent.e)]
+        e_final = [float(Decimal('%.2f' % elem)) for elem in list(agent.e)]
+        e_init = [float(Decimal('%.2f' % elem)) for elem in list(agent.e_init)]
+        util = float(Decimal('%.2f' % agent.calcUtility()))
+        #labels[agent.idnum] = [agent.idnum, util, sublabels]
+        labels[agent.idnum] = ['Util: %.2f' % (util), 'End: ' + str(sublabels)];
+
+    plt.figure(figsize=(20,10))
+    nx.draw(G, pos=pos, node_size=1000)
+    nx.draw_networkx_labels(G, pos_higher, labels, font_size=16);
+    plt.savefig(filename)
+
+
+#Add node subplans to drawing
+def drawFNetwork(G, attribute, filename):
     limits = plt.axis('off') #turn off axes
     attr = nx.get_node_attributes(G, attribute)
     labels = {}
 
     for agent in attr.itervalues():
-        e_final = [float(Decimal('%.2f' % elem)) for elem in list(agent.e)]
-        e_init = [float(Decimal('%.2f' % elem)) for elem in list(agent.e_init)]
+        sublabels = [float(Decimal('%.2f' % elem)) for elem in list(agent.e)]
         util = float(Decimal('%.2f' % agent.calcUtility()))
-        labels[agent.idnum] = [agent.idnum, util, e_init, e_final]
-    
+        cashmoney = float(Decimal('%.2f' % agent.money))
+        labels[agent.idnum] = [agent.idnum, util, sublabels, cashmoney]
+
     plt.figure(figsize=(20,10))
     nx.draw(G, pos=nx.spring_layout(G), labels=labels)
     plt.legend()

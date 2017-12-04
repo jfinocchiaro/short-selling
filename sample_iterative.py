@@ -12,13 +12,13 @@ def main():
     G = makegraphs.starGraph(3,0)
     agentlist = {}
     #id num, utility, endowment, prices
-    agent1 = Agent(1, np.array((10.0,1.0)), np.array((0.01,0.98)), np.array((1.0, 1.0)))
+    agent1 = Agent(1, np.array((10.0,1.0)), np.array((0.0,0.9)), np.array((1.0, 1.0)))
     agentlist[1] = agent1
 
-    agent0 = Agent(0, np.array((10.0,10.0)), np.array((0.01,0.01)), np.array((10.0,10.0)))
+    agent0 = Agent(0, np.array((10.0,10.0)), np.array((0.1,0.1)), np.array((10.0,10.0)))
     agentlist[0] = agent0
 
-    agent2 = Agent(2, np.array((1.0,10.0)), np.array((0.98,0.01)), np.array((1.0,1.0)))
+    agent2 = Agent(2, np.array((1.0,10.0)), np.array((0.9,0.0)), np.array((1.0,1.0)))
     agentlist[2] = agent2
 
 
@@ -29,21 +29,24 @@ def main():
     check_eq = False
     num_rounds = 0
 
+    pos = nx.spring_layout(G);
+
     while (check_eq == False):
         print("Num rounds:  %i" % num_rounds);
+        filename = 'barter' + str(num_rounds) + '.png'
+        dynamics.drawNetwork(G, pos, 'agentprop', filename)
         agents_old = copy.deepcopy(nx.get_node_attributes(G, 'agentprop'));
         agents_new = dynamics.changePlans(G)
         check_eq = dynamics.checkEquilibrium(agents_old, agents_new)
         nx.set_node_attributes(G, 'agentprop', agents_new)
-        filename = 'samplefile' + str(num_rounds) + '.png'
-        #dynamics.drawNetwork(G, 'agentprop', filename)
         num_rounds += 1
 
     print('Number of rounds to reach equilibrium:\t%i' % num_rounds)
 
     nx.set_node_attributes(G, 'agentprop', agentlist)
 
-    dynamics.drawNetwork(G, 'agentprop', 'samplefile.png')
+    filename = 'barter' + str(num_rounds) + '.png'
+    dynamics.drawNetwork(G, pos, 'agentprop', filename)
 
 
 
