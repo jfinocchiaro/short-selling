@@ -5,14 +5,16 @@ from pulp import *
 import networkx as nx
 import numpy as np
 from collections import defaultdict
-
+import copy
 
 def calcTrade(agent, neighbor):
     num_goods = len(agent.e)
     bought_items = np.zeros(num_goods)
     sold_items = np.zeros(num_goods)
     #neighbor = agentlist[nei]
-
+    agent_e = copy.deepcopy(agent.e);
+    neighbor_e = copy.deepcopy(neighbor.e); 
+    
     for item_num1, copies1 in enumerate(agent.e):
         for item_num2, copies2 in enumerate(neighbor.e):
             #neighbor gives agent item 1, agent gives neighbor item 2
@@ -20,10 +22,15 @@ def calcTrade(agent, neighbor):
                 print 'engaged in trade'
                 print agent.e
                 print neighbor.e
-                num_traded = min(neighbor.e[item_num1], agent.e[item_num2])
+                num_traded = min(neighbor_e[item_num1], agent_e[item_num2])
                 bought_items[item_num1] += num_traded
                 sold_items[item_num2] += num_traded
 
+                agent_e[item_num1] += num_traded;
+                neighbor_e[item_num2] += num_traded;
+                
+                agent_e[item_num2] -= num_traded;
+                neighbor_e[item_num1] -= num_traded;
                 #bought_items[item_num1] += neighbor.e[item_num1]
                 #sold_items[item_num2] += agent.e[item_num2]
 
