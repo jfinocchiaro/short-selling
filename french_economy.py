@@ -161,10 +161,10 @@ def adjustPrices(agentlist, num_rounds):
         num_goods = len(agent.p)
         if money < LOAN_AMT:
             for good in range(num_goods):
-                agent.p[good] = np.round(max(agent.p[good] + LR  , 0), 2)
+                agent.p[good] = np.round(max(agent.p[good] + LR  , 0.1), 2)
         elif money > LOAN_AMT:
             for good in range(num_goods):
-                agent.p[good] = np.round(max(agent.p[good] - LR  , 0),2)
+                agent.p[good] = np.round(max(agent.p[good] - LR  , 0.1),2)
 
 
         agentlist[agent.idnum] = agent
@@ -191,10 +191,10 @@ def adjustPrices(agentlist, check_clear):
 
 def checkTradeHappen(agents_old, agents_new):
     print (agents_old[1].e == agents_new[1].e)
-    print agents_old[1].e
-    print agents_new[1].e
 
     for ag in agents_old.iterkeys():
+        print agents_old[ag].e
+        print agents_new[ag].e
         if (agents_old[ag].e == agents_new[ag].e).all():
             pass
         else:
@@ -222,7 +222,7 @@ def startEconomy(G,agentlist):
     trade = True
     budget_cap = False
     num_rounds = 0
-    while (budget_cap == False):
+    while (budget_cap == False) and (trade == True) or num_rounds < 3:
     #while (check_clear == False):
         print 'Round num %i' % num_rounds
         agents_old = copy.deepcopy(nx.get_node_attributes(G, 'agentprop'));
@@ -245,27 +245,28 @@ def startEconomy(G,agentlist):
 
 
 if __name__ == '__main__':
-    G = makegraphs.starGraph(5)
+    G = makegraphs.ec_toy()
     c = 2
     agentlist = defaultdict(Agent)
     #id num, utility, endowment, prices, subplans,
-    agent1 = Agent(2, np.array((10,1)), np.array((0.01,0.98)), np.array((10, 1)), loan=LOAN_AMT)
-    agentlist[2] = agent1
 
-    agent2 = Agent(1, np.array((10,10)), np.array((0.01,0.01)), np.array((10,10)), loan=LOAN_AMT)
-    agentlist[1] = agent2
+    #middlemen.  Agent 1 degree central, agent 2 between central
+    
+    agentlist[2] = Agent(2, np.array((10,1)), np.array((0.01,0.98)), np.array((10, 10)), loan=LOAN_AMT)
+    agentlist[1] = Agent(1, np.array((10,10)), np.array((0.01,0.01)), np.array((10,10)), loan=LOAN_AMT)
 
-    agent3 = Agent(3, np.array((1,10)), np.array((0.98,0.01)), np.array((1,10)), loan=LOAN_AMT)
-    agentlist[3] = agent3
+    #type 1 util player
+    agentlist[3] = Agent(3, np.array((1,10)), np.array((0.98,0.01)), np.array((1,10)), loan=LOAN_AMT)
+    agentlist[6] = Agent(6, np.array((1,10)), np.array((0.98,0.01)), np.array((1,10)), loan=LOAN_AMT)
 
-
-
+    #type 2 util player
     agentlist[4] =  Agent(4, np.array((10,10)), np.array((0.01,0.01)), np.array((10,10)), loan=LOAN_AMT)
-
-
     agentlist[5] =  Agent(5, np.array((1,10)), np.array((0.98,0.01)), np.array((1,10)), loan=LOAN_AMT)
+
+    #only connected to 2
+    agentlist[7] = Agent(7, np.array((5,5)), np.array((0.5,0.5)), np.array((5,5)), loan=LOAN_AMT)
 
 
     nx.set_node_attributes(G, 'agentprop', agentlist)
     G = startEconomy(G, agentlist)
-    dynamics.drawFNetwork(G, 'agentprop', 'samplefrench.png')
+    dynamics.drawFNetwork(G, 'agentprop', 'frenchtoy.png')

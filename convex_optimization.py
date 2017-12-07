@@ -75,10 +75,11 @@ def optimizelinearutility(agent, G, agentlist):
 
     if opt_prob.status == LpStatusInfeasible:
             print ("Constraints are infeasible!")
+            quit()
 
     if opt_prob.status == LpStatusUnbounded:
             print ("Solution is unbounded!")
-
+            quit()
 
     total_goods_purchased = np.zeros((num_goods, 1))
     if opt_prob.status == LpStatusOptimal:
