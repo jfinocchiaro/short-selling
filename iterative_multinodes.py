@@ -7,16 +7,18 @@ import networkx as nx
 import numpy as np
 import copy
 from collections import defaultdict
+import analyze
 
 def main():
     #G = makegraphs.starGraph(1000,0)
     #G = makegraphs.clique(5);
     #G = makegraphs.ringGraph(1000)
 
-    num_goods = 5
-    G = makegraphs.ERGraph(5,0.5)
+    num_goods = 2
+    num_types = 4 # This is the type of agents you want to assign
+    G = makegraphs.ERGraph(100,0.1)
     #G = makegraphs.bipartiteGraph(200);
-    agentlist = makegraphs.assignAgentsRand(G, num_goods);
+    agentlist = makegraphs.assignAgentsSelectiveRandom(G, num_goods, num_types);
 
     nx.set_node_attributes(G, 'agentprop', agentlist)
 
@@ -27,7 +29,7 @@ def main():
     while (check_eq == False):
         print("Num rounds:  %i" % num_rounds);
         filename = 'barter' + str(num_rounds) + '.png'
-        dynamics.drawNetwork(G, pos, 'agentprop', filename)
+        #dynamics.drawNetwork(G, pos, 'agentprop', filename)
         agents_old = copy.deepcopy(nx.get_node_attributes(G, 'agentprop'));
         agents_new = dynamics.changePlans(G)
         check_eq = dynamics.checkEquilibrium(agents_old, agents_new)
@@ -40,7 +42,9 @@ def main():
     nx.set_node_attributes(G, 'agentprop', agentlist)
     
     filename = 'barter' + str(num_rounds) + '.png'
-    dynamics.drawNetwork(G, pos, 'agentprop', filename)
+
+    analyze.process_centrulity(G, num_types);
+    #dynamics.drawNetwork(G, pos, 'agentprop', filename)
 
 
 if __name__ == '__main__':

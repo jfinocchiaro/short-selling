@@ -4,7 +4,7 @@ import copy
 
 
 class Agent:
-    def __init__(self, idnum, utility, endowment,  prices):
+    def __init__(self, idnum, utility, endowment,  prices, agent_type=0):
         self.idnum = idnum
         self.u = utility.T #vector dim c x 1 of coefficients for each commodity c
         c = len(self.u)
@@ -18,8 +18,8 @@ class Agent:
         #self.k = np.zeros((c,1))
         self.sellplan = np.zeros((c,1))
         self.resell = np.zeros((c,1))
-        #self.budget_constraint_ineq = np.matmul(self.p, (self.e + self.r))
-        #self.budget_constraint_eq = (r + k).T
+	self.type = agent_type;
+	self.u_init = self.calcUtility();
 
     def calcUtility(self):
         '''

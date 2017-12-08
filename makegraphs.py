@@ -54,7 +54,7 @@ def assignAgents(G):
     
     return agentlist;
 
-def assignAgentsRand(G, num_goods):
+def assignAgentsRandom(G, num_goods):
     
     agentlist = {};
 
@@ -68,5 +68,21 @@ def assignAgentsRand(G, num_goods):
     
     return agentlist;
 
+def assignAgentsSelectiveRandom(G, num_goods, num_types):
+     
+    agent_type = {};
+    for i in range(num_types):
+       agent_type[i] = [10*np.random.random(num_goods), np.random.random(num_goods)];
+       print(agent_type[i]);
 
-       
+        
+    agentlist = {};
+    for node in G.nodes():
+        config = np.random.randint(num_types);
+        print(node, config);
+        agent_configuration = agent_type[config];
+        agentlist[node] = (Agent(node, np.array(agent_configuration[0]), 
+                               np.array(agent_configuration[1]), 
+                               np.array([0,0]), agent_type=config));
+    
+    return agentlist;
