@@ -1,6 +1,6 @@
 import networkx as nx
 import numpy as np
-
+from collections import defaultdict
 
 class Agent:
     def __init__(self, idnum, utility, endowment,  prices, loan=0.0):
@@ -10,13 +10,14 @@ class Agent:
         self.endowmentplan = endowment.T
         self.p = prices.T #vector dim c x 1
         c = len(self.u)
-        self.subplans = np.zeros((c,1)) #vector dimension (num_agents) x c
-        self.x = np.sum(self.subplans)
+        self.x = defaultdict(list)  #dict of what an agent plans to buy from each neighbor (indexed by neighbor)
+
         self.r = np.zeros((c,1))
         self.k = np.zeros((c,1))
         self.budget_constraint_ineq = np.matmul(self.p, (self.e + self.r))
         #self.check_clear = np.zeros((c,1))
         self.money = loan
+        self.demand = []
         #self.budget_constraint_eq = (r + k).T
 
     def calcUtility(self):
