@@ -69,7 +69,8 @@ def drawFNetwork(G, attribute, filename):
         sublabels = [float(Decimal('%.2f' % elem)) for elem in list(agent.e)]
         util = float(Decimal('%.2f' % agent.calcUtility()))
         cashmoney = float(Decimal('%.2f' % agent.money))
-        labels[agent.idnum] = [agent.idnum, util, sublabels]
+        prices = [float(Decimal('%.2f' % elem)) for elem in list(agent.p)]
+        labels[agent.idnum] = [agent.idnum, util, sublabels, prices]
 
     plt.figure(figsize=(20,10))
     nx.draw(G, pos=nx.spring_layout(G), labels=labels)

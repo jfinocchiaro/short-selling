@@ -159,7 +159,7 @@ def checkMarketClearance(agentlist, G):
             supply = np.round(agent.e[good])
             demand = np.round(agent.demand[good],1)
             #market for this item clears
-            if supply == 0:
+            if supply == demand:
 
                 if len(mkt_clear[agent.idnum]) < NUM_GOODS:
                     mkt_clear[agent.idnum].append(0)
@@ -167,7 +167,7 @@ def checkMarketClearance(agentlist, G):
                     mkt_clear[agent.idnum][good] = 0
 
             #item undersells
-            elif supply > 0:
+            elif supply > demand:
                 if len(mkt_clear[agent.idnum]) < NUM_GOODS:
                     mkt_clear[agent.idnum].append(-1)
                 else:
@@ -254,7 +254,7 @@ def main():
     #should be a dict of agents so when we need to reset the market after adjusting prices we set it to this
     initial_agentlist = defaultdict(Agent) #CHANGE
     #idnum, utility, endowment,  prices
-    initial_agentlist[1] = Agent(1, np.array((10,10)), np.array((1,1)), np.array((9,9)))
+    initial_agentlist[1] = Agent(1, np.array((10,10)), np.array((1,1)), np.array((10,10)))
     initial_agentlist[2] = Agent(2, np.array((1,10)), np.array((10,1)), np.array((10,1)))
     initial_agentlist[3] = Agent(3, np.array((10,1)), np.array((1,10)), np.array((1,10)))
 
