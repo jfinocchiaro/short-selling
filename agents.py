@@ -17,7 +17,8 @@ class Agent:
         self.budget_constraint_ineq = np.matmul(self.p, (self.e + self.r))
         #self.check_clear = np.zeros((c,1))
         self.money = loan
-        self.demand = []
+        self.demand = [0]* c
+        self.bought_items = [0] * c
         #self.budget_constraint_eq = (r + k).T
 
     def calcUtility(self):

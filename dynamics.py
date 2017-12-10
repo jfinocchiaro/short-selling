@@ -39,7 +39,7 @@ def checkEquilibrium(agents_old, agents_new):
 def drawNetwork(G, pos, attribute, filename):
     limits = plt.axis('off') #turn off axes
     attr = nx.get_node_attributes(G, attribute)
-    
+
     pos_higher = {}
     y_off = .05  # offset on the y axis
     for k, v in pos.items():
@@ -69,7 +69,7 @@ def drawFNetwork(G, attribute, filename):
         sublabels = [float(Decimal('%.2f' % elem)) for elem in list(agent.e)]
         util = float(Decimal('%.2f' % agent.calcUtility()))
         cashmoney = float(Decimal('%.2f' % agent.money))
-        labels[agent.idnum] = [agent.idnum, util, sublabels, cashmoney]
+        labels[agent.idnum] = [agent.idnum, util, sublabels]
 
     plt.figure(figsize=(20,10))
     nx.draw(G, pos=nx.spring_layout(G), labels=labels)
