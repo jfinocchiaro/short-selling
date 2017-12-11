@@ -18,10 +18,15 @@ def main():
     num_types = 4 # This is the type of agents you want to assign
     #G = makegraphs.ERGraph(100,0.1)
     #G = makegraphs.bipartiteGraph(200);
-    G = makegraphs.ConfigurationModel(500);
+    G = makegraphs.ConfigurationModel(1000);
     agentlist = makegraphs.assignAgentsSelectiveRandom(G, num_goods, num_types);
-
     nx.set_node_attributes(G, 'agentprop', agentlist)
+    #G = makegraphs.ReadModel('./graphfile');
+    #agentlist = nx.get_node_attributes(G, 'agentprop');
+
+    for node in G.nodes():
+        agent = agentlist[node];
+	agent.u_init = agent.calcUtility();
 
     check_eq = False
     num_rounds = 0
@@ -45,6 +50,8 @@ def main():
     filename = 'barter' + str(num_rounds) + '.png'
 
     analyze.process_centrulity(G, num_types);
+
+    nx.write_yaml(G, 'graphfile')
     #dynamics.drawNetwork(G, pos, 'agentprop', filename)
 
 

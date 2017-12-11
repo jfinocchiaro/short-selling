@@ -40,6 +40,9 @@ def ConfigurationModel(n):
     dseq=nx.utils.create_degree_sequence(n,powerlaw_sequence)
     return nx.configuration_model(deg_sequence=dseq);
 
+def ReadModel(path):
+    return nx.read_yaml(path);
+
 agent_type = {0: [[10.0, 1.0], [0.01, 0.99]], 1: [[1.0, 10.0],[0.99, .01]], 2: [[10.0, 10.0], [0.01, 0.01]], 3: [[10.0, 1.0],[0.99, 0.01]], 4: [[1.0, 10.0],[0.01, .99]]}
 
 def assignAgents(G):
