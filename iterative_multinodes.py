@@ -16,8 +16,9 @@ def main():
 
     num_goods = 2
     num_types = 4 # This is the type of agents you want to assign
-    G = makegraphs.ERGraph(100,0.1)
+    #G = makegraphs.ERGraph(100,0.1)
     #G = makegraphs.bipartiteGraph(200);
+    G = makegraphs.ConfigurationModel(500);
     agentlist = makegraphs.assignAgentsSelectiveRandom(G, num_goods, num_types);
 
     nx.set_node_attributes(G, 'agentprop', agentlist)

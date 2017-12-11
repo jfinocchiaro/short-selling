@@ -3,6 +3,7 @@ import networkx as nx
 import agents
 from agents import Agent
 from networkx.algorithms import bipartite
+from networkx.utils import powerlaw_sequence
 
 def starGraph(n, center):
     #n is the number of edges, 1 is the center, has n-1 nodes on the outside
@@ -34,6 +35,10 @@ def bipartiteGraph(n):
 
 def ERGraph(n,p):
     return nx.erdos_renyi_graph(n,p);
+
+def ConfigurationModel(n):
+    dseq=nx.utils.create_degree_sequence(n,powerlaw_sequence)
+    return nx.configuration_model(deg_sequence=dseq);
 
 agent_type = {0: [[10.0, 1.0], [0.01, 0.99]], 1: [[1.0, 10.0],[0.99, .01]], 2: [[10.0, 10.0], [0.01, 0.01]], 3: [[10.0, 1.0],[0.99, 0.01]], 4: [[1.0, 10.0],[0.01, .99]]}
 
